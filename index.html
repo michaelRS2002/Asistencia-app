@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Asistencia</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; margin-top: 10px; width: 100%; max-width: 300px; }
+    #status { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Registro de Asistencia</h2>
+  <p>Ingresa tu nombre:</p>
+  <input type="text" id="nombre" placeholder="Nombre completo">
+  <button onclick="registrarAsistencia()">Registrar Asistencia</button>
+  <div id="status"></div>
+
+  <script>
+    const empresaLat = 3.449465;
+    const empresaLng = -76.484598;
+    const toleranciaMetros = 100;
+
+    function calcularDistancia(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2)*2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)*2;
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function registrarAsistencia() {
+      const nombre = document.getElementById("nombre").value;
+      const status = document.getElementById("status");
+      if (!nombre.trim()) {
+        status.innerText = "Por favor, ingresa tu nombre.";
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        status.innerText = "Tu navegador no permite acceder a la ubicación.";
+        return;
+      }
+
+      status.innerText = "Verificando ubicación...";
+      navigator.geolocation.getCurrentPosition(position => {
+        const { latitude, longitude } = position.coords;
+        const distancia = calcularDistancia(latitude, longitude, empresaLat, empresaLng);
+        if (distancia <= toleranciaMetros) {
+          const hora = new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" });
+          fetch("LA_URL_DE_TU_APLICACION_WEB_DE_GOOGLE_APPS_SCRIPT", { // Reemplaza con tu URL
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, hora })
+          })
+          .then(res => res.text())
+          .then(msg => {
+            status.innerText = "Asistencia registrada correctamente.";
+            document.getElementById("nombre").value = "";
+          })
+          .catch(err => {
+            status.innerText = "Error al enviar los datos.";
+            console.error(err);
+          });
+        } else {
+          status.innerText = "Debes estar en la empresa para registrar asistencia.";
+        }
+      }, () => {
+        status.innerText = "No se pudo obtener tu ubicación.";
+      });
+    }
+  </script>
+</body>
+</html>
