@@ -17,10 +17,10 @@
   <div id="status"></div>
 
   <script>
-    const empresaLat = 3.449462;
-    const empresaLng = -76.484637;
+    const empresaLat = 3.375671;
+    const empresaLng = -76.529841;
     const toleranciaMetros = 100;
-    
+    //3.375671, -76.529841
     function calcularDistancia(lat1, lng1, lat2, lng2) {
       const R = 6371000;
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -48,7 +48,7 @@
         const distancia = calcularDistancia(latitude, longitude, empresaLat, empresaLng);
         if (distancia <= toleranciaMetros) {
           const hora = new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" });
-          fetch("LA_URL_DE_TU_APLICACION_WEB_DE_GOOGLE_APPS_SCRIPT", { // Reemplaza con tu URL
+          fetch("https://script.google.com/macros/s/AKfycbzaUHJy-Ch-yB4fhyj1qs0iuCH0SKB5xw9LqZyvVaaDh2kvupRSm_MWj2BF_ZEIcDyw/exec", { // Reemplaza con tu URL
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nombre, hora })
